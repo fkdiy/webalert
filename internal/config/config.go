@@ -1,17 +1,52 @@
 package config
 
 import (
-	"fmt"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
-func Load() {
+type Config struct {
+	Interval int            `yaml:"interval"`
+	SMTP     SMTPConfig     `yaml:"smtp"`
+	Targets  []TargetConfig `yaml:"targets"`
+}
+
+type SMTPConfig struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+}
+
+type TargetConfig struct {
+	URL      string `yaml:"url"`
+	Selector string `yaml:"selector"`
+}
+
+func Load() (Config, error) {
 	dat, err := os.ReadFile("config.yaml")
 
 	if err != nil {
-		fmt.Println("Error: Could not locate config.yaml")
-		return
+		return Config{}, err
 	}
 
-	fmt.Print(string(dat))
+	conf, err := parse(dat)
+
+	if err != nil {
+		return Config{}, err
+	}
+
+	return conf, nil
+}
+
+func parse(dat []byte) (Config, error) {
+	var conf Config
+
+	err := yaml.Unmarshal(dat, &conf)
+	if err != nil {
+		return Config{}, err
+	}
+
+	return conf, nil
 }

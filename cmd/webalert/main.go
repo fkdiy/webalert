@@ -1,7 +1,16 @@
 package main
 
-import "github.com/fkdiy/webalert/internal/config"
+import (
+	"log"
+
+	"github.com/fkdiy/webalert/internal/config"
+)
 
 func main() {
-	config.Load()
+	conf, err := config.Load()
+
+	if err != nil {
+		log.Fatalf("Could not load configuration: %v", err)
+	}
+
 }
