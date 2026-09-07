@@ -1,0 +1,11 @@
+interval: 60
+
+smtp:
+  host: smtp.example.com
+  port: 587
+  username: user@example.com
+  password: change-me
+
+targets:
+  - url: https://example.com
+    selector: ".price"
