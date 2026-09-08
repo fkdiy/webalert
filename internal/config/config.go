@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -8,6 +9,7 @@ import (
 
 type Config struct {
 	Interval int            `yaml:"interval"`
+	Jitter   int            `yaml:"jitter"`
 	EMail    EMailConfig    `yaml:"email"`
 	Targets  []TargetConfig `yaml:"targets"`
 }
@@ -49,6 +51,14 @@ func Load(path string) (Config, error) {
 
 	if err != nil {
 		return Config{}, err
+	}
+
+	if conf.Jitter < 0 {
+		return Config{}, fmt.Errorf("jitter must not be negative")
+	}
+
+	if conf.Jitter >= conf.Interval {
+		return Config{}, fmt.Errorf("jitter must be smaller than interval")
 	}
 
 	return conf, nil

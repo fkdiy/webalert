@@ -16,6 +16,7 @@ keeps their last known state in memory.
 * Monitor multiple web pages
 * Select monitored elements using CSS selectors
 * Configurable check interval
+* Add random jitter to check intervals
 * Detect changes to the selected text content
 * Send email notifications via SMTP
 * Send one email per change or combine changes into a digest
@@ -38,13 +39,13 @@ Choose the binary matching your system:
 
 After downloading the binary, make it executable:
 
-```bash id="yn1fbs"
+```bash
 chmod +x webalert-linux-amd64
 ```
 
 Then run Webalert:
 
-```bash id="w2qmhq"
+```bash
 ./webalert-linux-amd64
 ```
 
@@ -57,32 +58,32 @@ Alternatively, Webalert can be built from source.
 
 Clone the repository:
 
-```bash id="y9e9zc"
+```bash
 git clone https://github.com/fkdiy/webalert.git
 cd webalert
 ```
 
 Download the dependencies:
 
-```bash id="r8ndgf"
+```bash
 go mod download
 ```
 
 Build the application:
 
-```bash id="o04hvf"
+```bash
 go build -o webalert ./cmd/webalert
 ```
 
 Then start Webalert:
 
-```bash id="e7h80j"
+```bash
 ./webalert
 ```
 
 During development, it can also be run directly:
 
-```bash id="d7nsjf"
+```bash
 go run ./cmd/webalert
 ```
 
@@ -98,6 +99,7 @@ the repository.
 
 ```yaml
 interval: 60
+jitter: 0
 
 email:
   mode: digest
@@ -119,7 +121,7 @@ targets:
 
 ### Check interval
 
-`interval` specifies how often all targets are checked, in seconds.
+`interval` specifies the base interval between checks, in seconds.
 
 For example:
 
@@ -127,11 +129,40 @@ For example:
 interval: 60
 ```
 
-checks all configured targets every minute.
+checks all configured targets every minute when no jitter is configured.
 
 Webalert performs an initial check when it starts. The results of this
 check become the initial state, so starting the application does not
 generate notifications for existing content.
+
+### Jitter
+
+`jitter` adds a random variation to the configured check interval.
+
+For every check, Webalert randomly selects a value between the negative
+and positive jitter value and adds it to the base interval.
+
+For example:
+
+```yaml
+interval: 60
+jitter: 15
+```
+
+results in a new check interval between 45 and 75 seconds after each
+check.
+
+A new jitter value is generated for every interval, so checks do not
+occur at a fixed frequency.
+
+Set `jitter` to `0` to disable jitter:
+
+```yaml
+jitter: 0
+```
+
+The jitter value must be zero or a positive number and must be smaller
+than the configured `interval`.
 
 ### Email notifications
 
@@ -261,6 +292,7 @@ webalert/
 ├── internal/
 │   ├── config/
 │   ├── email/
+│   ├── jitter/
 │   └── monitor/
 ├── webalert.config.example.yaml
 ├── go.mod
@@ -271,8 +303,9 @@ webalert/
 * `cmd/webalert` contains the application entry point and coordinates the
   individual components.
 * `internal/config` loads and parses the YAML configuration.
-* `internal/monitor` checks targets and detects changes.
 * `internal/email` creates and sends email notifications.
+* `internal/jitter` generates random variations for check intervals.
+* `internal/monitor` checks targets and detects changes.
 
 ## License
 

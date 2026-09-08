@@ -9,6 +9,7 @@ import (
 
 	"github.com/fkdiy/webalert/internal/config"
 	"github.com/fkdiy/webalert/internal/email"
+	"github.com/fkdiy/webalert/internal/jitter"
 	"github.com/fkdiy/webalert/internal/monitor"
 )
 
@@ -40,7 +41,7 @@ func main() {
 	conf, err := config.Load(*configPath)
 
 	if err != nil {
-		log.Fatalf("Could not load configuration: %v", err)
+		log.Fatalf("Configuration error: %v", err)
 	}
 
 	mon := monitor.New(conf.Targets)
@@ -52,14 +53,17 @@ func main() {
 		log.Printf("Some targets could not be initialized:\n\n%v\n\n", err)
 	}
 
-	// Initialize ticker with interval set in config
-	ticker := time.NewTicker(time.Duration(conf.Interval) * time.Second)
-	defer ticker.Stop()
+	// Calculate interval with jitter
+	interval := time.Duration(conf.Interval+jitter.GetJitter(conf.Jitter)) * time.Second
 
-	fmt.Printf("Checking targets every %v seconds ...\n\n", conf.Interval)
+	// Initialize timer
+	timer := time.NewTimer(interval)
+	defer timer.Stop()
+
+	fmt.Printf("Checking targets every %v seconds with %v seconds of jitter ...\n\n", conf.Interval, conf.Jitter)
 
 	// Run infinite check loop
-	for range ticker.C {
+	for range timer.C {
 		changes, err := mon.Check()
 
 		if err != nil {
@@ -67,6 +71,7 @@ func main() {
 		}
 
 		if len(changes) == 0 {
+			timer.Reset(time.Duration(conf.Interval+jitter.GetJitter(conf.Jitter)) * time.Second)
 			continue
 		}
 
@@ -101,5 +106,7 @@ func main() {
 				log.Printf("Could not send email: %v", err)
 			}
 		}
+
+		timer.Reset(time.Duration(conf.Interval+jitter.GetJitter(conf.Jitter)) * time.Second)
 	}
 }
