@@ -8,6 +8,7 @@ import (
 
 	"github.com/fkdiy/webalert/internal/config"
 	"github.com/fkdiy/webalert/internal/monitor"
+	email "github.com/fkdiy/webalert/internal/notifier"
 )
 
 func main() {
@@ -43,6 +44,7 @@ func main() {
 			log.Printf("Some targets could not be checked:\n\n%v\n\n", err)
 		}
 
+		// Print change alert to console and send e-mail
 		for _, change := range changes {
 			fmt.Printf(
 				"%v: Change registered in selector '%v'\nPrevious: %v\nCurrent: %v\nAlerting: %v\n\n",
@@ -52,6 +54,12 @@ func main() {
 				change.Current,
 				strings.Join(conf.EMail.Recipients, ", "),
 			)
+
+			err = email.Send(conf.EMail, change)
+
+			if err != nil {
+				log.Printf("Cant't send e-mail: %v\n\n", err)
+			}
 		}
 	}
 }

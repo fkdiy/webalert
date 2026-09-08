@@ -1,7 +1,7 @@
 interval: 60
 
 email:
-  from: "Web alert <webalert@example.com>"
+  from: "webalert@example.com"
   recipients:
     - notify@me.com
   smtp:
