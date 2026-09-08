@@ -13,6 +13,8 @@ import (
 )
 
 func main() {
+	var version = "dev"
+
 	log.SetFlags(0)
 
 	configPath := flag.String(
@@ -21,7 +23,18 @@ func main() {
 		"Path to the configuration file",
 	)
 
+	versionFlag := flag.Bool(
+		"version",
+		false,
+		"Print version information",
+	)
+
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Printf("webalert %s\n", version)
+		return
+	}
 
 	// Locate and parse config.yaml
 	conf, err := config.Load(*configPath)
