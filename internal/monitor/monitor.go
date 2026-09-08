@@ -13,12 +13,14 @@ import (
 type Monitor struct {
 	targets []config.TargetConfig
 	states  map[string]string
+	version string
 }
 
-func New(targets []config.TargetConfig) *Monitor {
+func New(targets []config.TargetConfig, version string) *Monitor {
 	return &Monitor{
 		targets: targets,
 		states:  make(map[string]string),
+		version: version,
 	}
 }
 
@@ -50,6 +52,13 @@ func (m *Monitor) Check() ([]Change, error) {
 
 func (m *Monitor) checkTarget(target config.TargetConfig) (Change, bool, error) {
 	c := colly.NewCollector()
+
+	c.UserAgent = fmt.Sprintf(
+		"webalert/%s (+https://github.com/fkdiy/webalert)",
+		m.version,
+	)
+
+	fmt.Printf(c.UserAgent)
 
 	var current string
 	var found bool

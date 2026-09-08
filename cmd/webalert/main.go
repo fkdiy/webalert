@@ -44,7 +44,7 @@ func main() {
 		log.Fatalf("Configuration error: %v", err)
 	}
 
-	mon := monitor.New(conf.Targets)
+	mon := monitor.New(conf.Targets, version)
 
 	// Set initial state
 	_, err = mon.Check()
