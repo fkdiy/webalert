@@ -21,38 +21,68 @@ keeps their last known state in memory.
 * Send one email per change or combine changes into a digest
 * Continue monitoring if individual targets fail
 * Load a custom configuration file using `--config`
+* Pre-built binaries for Linux AMD64 and ARM64
 * No database or persistent storage required
 
 ## Installation
 
+### Download a pre-built binary
+
+Pre-built Linux binaries are available on the
+[GitHub Releases](https://github.com/fkdiy/webalert/releases) page.
+
+Choose the binary matching your system:
+
+* `webalert-linux-amd64` for x86-64 systems
+* `webalert-linux-arm64` for ARM64 systems
+
+After downloading the binary, make it executable:
+
+```bash id="yn1fbs"
+chmod +x webalert-linux-amd64
+```
+
+Then run Webalert:
+
+```bash id="w2qmhq"
+./webalert-linux-amd64
+```
+
+Webalert looks for `webalert.config.yaml` in the current working directory
+by default. See the [Configuration](#configuration) section for details.
+
+### Build from source
+
+Alternatively, Webalert can be built from source.
+
 Clone the repository:
 
-```bash
+```bash id="y9e9zc"
 git clone https://github.com/fkdiy/webalert.git
 cd webalert
 ```
 
 Download the dependencies:
 
-```bash
+```bash id="r8ndgf"
 go mod download
 ```
 
 Build the application:
 
-```bash
+```bash id="o04hvf"
 go build -o webalert ./cmd/webalert
 ```
 
-You can then start Webalert with:
+Then start Webalert:
 
-```bash
+```bash id="e7h80j"
 ./webalert
 ```
 
 During development, it can also be run directly:
 
-```bash
+```bash id="d7nsjf"
 go run ./cmd/webalert
 ```
 
