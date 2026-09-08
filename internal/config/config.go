@@ -31,7 +31,7 @@ type TargetConfig struct {
 }
 
 func Load() (Config, error) {
-	dat, err := os.ReadFile("config.yaml")
+	dat, err := os.ReadFile("webalert.config.yaml")
 
 	if err != nil {
 		return Config{}, err
