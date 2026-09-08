@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/fkdiy/webalert/internal/config"
+	"github.com/fkdiy/webalert/internal/email"
 	"github.com/fkdiy/webalert/internal/monitor"
-	email "github.com/fkdiy/webalert/internal/notifier"
 )
 
 func main() {
