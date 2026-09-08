@@ -38,8 +38,8 @@ type TargetConfig struct {
 	Selector string `yaml:"selector"`
 }
 
-func Load() (Config, error) {
-	dat, err := os.ReadFile("webalert.config.yaml")
+func Load(path string) (Config, error) {
+	dat, err := os.ReadFile(path)
 
 	if err != nil {
 		return Config{}, err

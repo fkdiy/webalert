@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"strings"
@@ -14,8 +15,16 @@ import (
 func main() {
 	log.SetFlags(0)
 
+	configPath := flag.String(
+		"config",
+		"webalert.config.yaml",
+		"Path to the configuration file",
+	)
+
+	flag.Parse()
+
 	// Locate and parse config.yaml
-	conf, err := config.Load()
+	conf, err := config.Load(*configPath)
 
 	if err != nil {
 		log.Fatalf("Could not load configuration: %v", err)
