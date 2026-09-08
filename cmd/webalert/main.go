@@ -53,6 +53,10 @@ func main() {
 			log.Printf("Some targets could not be checked:\n\n%v\n\n", err)
 		}
 
+		if len(changes) == 0 {
+			continue
+		}
+
 		// Print change alert to console
 		for _, change := range changes {
 			fmt.Printf(
