@@ -12,9 +12,9 @@ import (
 	"github.com/fkdiy/webalert/internal/monitor"
 )
 
-func main() {
-	var version = "dev"
+var version = "dev"
 
+func main() {
 	log.SetFlags(0)
 
 	configPath := flag.String(
