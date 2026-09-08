@@ -1,10 +1,14 @@
 interval: 60
 
-smtp:
-  host: smtp.example.com
-  port: 587
-  username: user@example.com
-  password: change-me
+email:
+  from: "Web alert <webalert@example.com>"
+  recipients:
+    - notify@me.com
+  smtp:
+    host: smtp.example.com
+    port: 587
+    username: user@example.com
+    password: change-me
 
 targets:
   - url: https://example.com

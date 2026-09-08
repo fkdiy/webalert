@@ -8,8 +8,14 @@ import (
 
 type Config struct {
 	Interval int            `yaml:"interval"`
-	SMTP     SMTPConfig     `yaml:"smtp"`
+	EMail    EMailConfig    `yaml:"email"`
 	Targets  []TargetConfig `yaml:"targets"`
+}
+
+type EMailConfig struct {
+	From       string     `yaml:"from"`
+	Recipients []string   `yaml:"recipients"`
+	SMTP       SMTPConfig `yaml:"smtp"`
 }
 
 type SMTPConfig struct {
