@@ -13,10 +13,18 @@ type Config struct {
 }
 
 type EMailConfig struct {
+	Mode       EMailMode  `yaml:"mode"`
 	From       string     `yaml:"from"`
 	Recipients []string   `yaml:"recipients"`
 	SMTP       SMTPConfig `yaml:"smtp"`
 }
+
+type EMailMode string
+
+const (
+	EMailModePerChange EMailMode = "per_change"
+	EMailModeDigest    EMailMode = "digest"
+)
 
 type SMTPConfig struct {
 	Host     string `yaml:"host"`

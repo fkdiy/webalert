@@ -44,7 +44,7 @@ func main() {
 			log.Printf("Some targets could not be checked:\n\n%v\n\n", err)
 		}
 
-		// Print change alert to console and send e-mail
+		// Print change alert to console
 		for _, change := range changes {
 			fmt.Printf(
 				"%v: Change registered in selector '%v'\nPrevious: %v\nCurrent: %v\nAlerting: %v\n\n",
@@ -54,11 +54,25 @@ func main() {
 				change.Current,
 				strings.Join(conf.EMail.Recipients, ", "),
 			)
+		}
 
-			err = email.Send(conf.EMail, change)
+		switch conf.EMail.Mode {
+		case config.EMailModePerChange:
+			// Send an e-mail for every change
+			for _, change := range changes {
+				err = email.Send(conf.EMail, change)
+
+				if err != nil {
+					log.Printf("Cant't send e-mail: %v\n\n", err)
+				}
+			}
+
+		case config.EMailModeDigest:
+			// Send one e-mail containing all changes
+			err := email.SendDigest(conf.EMail, changes)
 
 			if err != nil {
-				log.Printf("Cant't send e-mail: %v\n\n", err)
+				log.Printf("Could not send email: %v", err)
 			}
 		}
 	}

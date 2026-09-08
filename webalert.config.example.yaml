@@ -1,6 +1,7 @@
 interval: 60
 
 email:
+  mode: digest
   from: "webalert@example.com"
   recipients:
     - notify@me.com
@@ -13,3 +14,5 @@ email:
 targets:
   - url: https://example.com
     selector: ".price"
+  - url: https://anotherexample.com
+    selector: ".instock"

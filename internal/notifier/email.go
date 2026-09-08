@@ -1,6 +1,7 @@
 package email
 
 import (
+	"fmt"
 	"net"
 	"net/smtp"
 	"strings"
@@ -10,6 +11,62 @@ import (
 )
 
 func Send(conf config.EMailConfig, change monitor.Change) error {
+	message := fmt.Sprintf(
+		"From: Web alert <%s>\r\n"+
+			"To: %s\r\n"+
+			"Subject: Webalert detected a change at %s\r\n"+
+			"\r\n"+
+			"Change registered at: %s\r\n"+
+			"\r\n"+
+			"Selector: %s\r\n"+
+			"\r\n"+
+			"Current: %s\r\n"+
+			"Previous: %s\r\n",
+		conf.From,
+		strings.Join(conf.Recipients, ", "),
+		change.Target.URL,
+		change.Target.URL,
+		change.Target.Selector,
+		change.Current,
+		change.Previous,
+	)
+
+	return send(conf, []byte(message))
+}
+
+func SendDigest(conf config.EMailConfig, changes []monitor.Change) error {
+	message := fmt.Sprintf(
+		"From: Web alert <%s>\r\n"+
+			"To: %s\r\n"+
+			"Subject: Webalert detected %d changes\r\n"+
+			"\r\n",
+		conf.From,
+		strings.Join(conf.Recipients, ", "),
+		len(changes),
+	)
+
+	for _, change := range changes {
+		message = message + fmt.Sprintf(
+			"Change registered at: %s\r\n"+
+				"\r\n"+
+				"Selector: %s\r\n"+
+				"\r\n"+
+				"Current: %s\r\n"+
+				"Previous: %s\r\n"+
+				"\r\n"+
+				"---\r\n"+
+				"\r\n",
+			change.Target.URL,
+			change.Target.Selector,
+			change.Current,
+			change.Previous,
+		)
+	}
+
+	return send(conf, []byte(strings.Trim(message, "---\r\n\r\n")))
+}
+
+func send(conf config.EMailConfig, message []byte) error {
 	auth := smtp.PlainAuth(
 		"",
 		conf.SMTP.Username,
@@ -20,17 +77,6 @@ func Send(conf config.EMailConfig, change monitor.Change) error {
 	addr := net.JoinHostPort(
 		conf.SMTP.Host,
 		conf.SMTP.Port,
-	)
-
-	message := []byte(
-		"From: Web alert <" + conf.From + ">\r\n" +
-			"To: " + strings.Join(conf.Recipients, ", ") + "\r\n" +
-			"Subject: Webalert detected a change at " + change.Target.URL + "\r\n" +
-			"\r\n" +
-			"Change registered at: " + change.Target.URL + "\r\n\n" +
-			"Selector: " + change.Target.Selector + "\r\n\n" +
-			"Current: " + change.Current + "\r\n" +
-			"Previous: " + change.Previous + "\r\n",
 	)
 
 	return smtp.SendMail(
