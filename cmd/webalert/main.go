@@ -30,6 +30,12 @@ func main() {
 		"Print version information",
 	)
 
+	scanFlag := flag.Bool(
+		"scan",
+		false,
+		"Scan for targets once and print their contents",
+	)
+
 	flag.Parse()
 
 	if *versionFlag {
@@ -51,6 +57,19 @@ func main() {
 
 	if err != nil {
 		log.Printf("Some targets could not be initialized:\n\n%v\n\n", err)
+	}
+
+	if *scanFlag {
+		for _, state := range mon.States() {
+			fmt.Printf(
+				"URL: %s\nSelector: '%s'\nState: %s\n\n",
+				state.Target.URL,
+				state.Target.Selector,
+				state.Current,
+			)
+		}
+
+		return
 	}
 
 	// Calculate interval with jitter

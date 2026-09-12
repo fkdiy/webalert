@@ -12,22 +12,27 @@ import (
 
 type Monitor struct {
 	targets []config.TargetConfig
-	states  map[string]string
+	states  map[string]State
 	version string
-}
-
-func New(targets []config.TargetConfig, version string) *Monitor {
-	return &Monitor{
-		targets: targets,
-		states:  make(map[string]string),
-		version: version,
-	}
 }
 
 type Change struct {
 	Target   config.TargetConfig
 	Previous string
 	Current  string
+}
+
+type State struct {
+	Target  config.TargetConfig
+	Current string
+}
+
+func New(targets []config.TargetConfig, version string) *Monitor {
+	return &Monitor{
+		targets: targets,
+		states:  make(map[string]State),
+		version: version,
+	}
 }
 
 func (m *Monitor) Check() ([]Change, error) {
@@ -50,6 +55,16 @@ func (m *Monitor) Check() ([]Change, error) {
 	return changes, errors.Join(errs...)
 }
 
+func (m *Monitor) States() []State {
+	var states []State
+
+	for _, state := range m.states {
+		states = append(states, state)
+	}
+
+	return states
+}
+
 func (m *Monitor) checkTarget(target config.TargetConfig) (Change, bool, error) {
 	c := colly.NewCollector()
 
@@ -57,8 +72,6 @@ func (m *Monitor) checkTarget(target config.TargetConfig) (Change, bool, error) 
 		"webalert/%s (+https://github.com/fkdiy/webalert)",
 		m.version,
 	)
-
-	fmt.Printf(c.UserAgent)
 
 	var current string
 	var found bool
@@ -90,21 +103,30 @@ func (m *Monitor) checkTarget(target config.TargetConfig) (Change, bool, error) 
 		)
 	}
 
-	previous, exists := m.states[target.URL]
+	previousState, exists := m.states[target.URL]
 
 	if !exists {
-		m.states[target.URL] = current
+		m.states[target.URL] = State{
+			Target:  target,
+			Current: current,
+		}
+
 		return Change{}, false, nil
 	}
 
-	if previous != current {
-		m.states[target.URL] = current
-
-		return Change{
+	if previousState.Current != current {
+		change := Change{
 			Target:   target,
-			Previous: previous,
+			Previous: previousState.Current,
 			Current:  current,
-		}, true, nil
+		}
+
+		m.states[target.URL] = State{
+			Target:  target,
+			Current: current,
+		}
+
+		return change, true, nil
 	}
 
 	return Change{}, false, nil
