@@ -210,6 +210,14 @@ On subsequent checks, the current text is compared with the previously
 stored value. If they differ, Webalert registers a change and sends a
 notification according to the configured email mode.
 
+## Command-line options
+
+Command-line help is available with:
+
+```bash
+./webalert --help
+```
+
 ## Custom configuration file
 
 A different configuration file can be specified using the `--config`
@@ -225,10 +233,22 @@ The same option can be used with `go run`:
 go run ./cmd/webalert --config /path/to/config.yaml
 ```
 
-Command-line help is available with:
+## Scan targets once
+
+The `--scan` option checks all configured targets once, prints their current
+content and then exits without starting the monitoring loop.
 
 ```bash
-./webalert --help
+./webalert --scan
+```
+
+This can be useful when setting up new targets to verify that their CSS
+selectors match the expected content.
+
+The option can also be combined with `--config`:
+
+```bash
+./webalert --config /path/to/config.yaml --scan
 ```
 
 ## Error handling
